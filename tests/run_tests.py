@@ -28,6 +28,8 @@ parser.add_option("--preexecute-asmjs",dest="preexecute_asmjs", help="Run the te
 parser.add_option("--all",dest="all", help="Run all the test kinds [genericjs/asmjs/wasm/preexecute]", action="store_true", default=False)
 parser.add_option("--pretty-code",dest="pretty_code", help="Compile with -cheerp-pretty-code", action="store_true", default=False)
 parser.add_option("--no-lto",dest="no_lto", help="Compile with -cheerp-no-lto", action="store_true", default=False)
+parser.add_option("--print-cmd",dest="print_cmd", help="Print the commands as they're executed", action="store_true", default=False)
+parser.add_option("--asan",dest="test_asan", help="Test using AddressSanitizer (only asmjm/wasm)", action="store_true", default=False)
 (option, args) = parser.parse_args()
 
 if option.all:
@@ -314,6 +316,10 @@ def compileCommand(compiler, mode, testName, extraFlags):
 		assert mode == "genericjs"
 		flags += ["-target","cheerp"]
 
+	if option.test_asan:
+		assert mode != "genericjs"
+		flags += ["-fsanitize=address"]
+
 	return [compiler] + [testName] + flags
 
 def selectRandomPasses(passes, seed):
@@ -416,6 +422,8 @@ determinismTest.dictionaryReport = determinismDictionary()
 def compileTest(command, testOptions, testName, testReport, testOut):
 	testReport.write('<testcase classname="compilation-%s" name="%s">' % (testOptions.mode, testName))
 
+	if (option.print_cmd):
+		print(" ".join(command + ["-o", testOptions.primaryFile]))
 	ret=subprocess.call(command + ["-o", testOptions.primaryFile],
 	    stderr=subprocess.STDOUT, stdout=testOut);
 

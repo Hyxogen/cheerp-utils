@@ -424,8 +424,12 @@ def compileTest(command, testOptions, testName, testReport, testOut):
 
 	if (option.print_cmd):
 		print(" ".join(command + ["-o", testOptions.primaryFile]))
+
+
+	#ret=subprocess.call(command + ["-o", testOptions.primaryFile],
+	#    stderr=subprocess.STDOUT, stdout=out);
 	ret=subprocess.call(command + ["-o", testOptions.primaryFile],
-	    stderr=subprocess.STDOUT, stdout=testOut);
+	    stderr=subprocess.STDOUT);
 
 	if option.determinism != 0:
 		A = computeHash(testOptions.primaryFile)
